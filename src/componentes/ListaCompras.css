@@ -1,0 +1,30 @@
+#blank {
+    text-align: center;
+    padding-top: 5rem;
+    width: 100%;
+    opacity: 0.25;
+}
+
+#blank * {
+    text-align: center;
+}
+
+#btnFinalizarLista {
+    margin-top: 1rem;
+}
+
+#finalizarLista {
+    text-align: center;
+}
+
+.opacityText {
+    opacity: 0.25;
+}
+
+.italicText {
+    font-style: italic;
+}
+
+#fieldPesquisa {
+    border-radius: 0.95rem;
+}
