@@ -73,3 +73,22 @@ input:checked + .slider:before {
 .slider.round:before {
     border-radius: 50%;
 }
+
+img {
+    height: 15rem;
+    width: 15rem;
+}
+
+.alinha-final {
+    text-align: end;
+    border: 0rem;
+    font-weight: bold;
+}
+
+.link {
+    display: block; 
+    text-decoration: none;
+    color: inherit;
+    padding: 0.3em;
+    cursor: pointer;
+}
