@@ -45,22 +45,26 @@ const App = () =>  {
   }
 
   const finalizarListaCompras = () => {
-      produtos.filter(produto => produto.acabou).forEach((produto) => {
-        produto.acabou = false
-        produto.ultimaCompra = moment().format('YYYY-MM-DD');
-
-        if(!produto.historicoCompras) {
-          produto.historicoCompras = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-        }
-
-        if(!produto.quantidade) {
-          produto.quantidade = 1;
-        }
-
-        produto.historicoCompras[parseInt(moment().format('M'))] += parseInt(produto.quantidade);
+    let produtosAtualizados = produtos
+    produtosAtualizados.filter(produto => produto.acabou).forEach((produto) => {
+      produto.acabou = false
+      produto.ultimaCompra = moment().format('YYYY-MM-DD');
+      if(!produto.historicoCompras) {
+        produto.historicoCompras = [
+          ['Mês', 'Preço'],
+          ['Jan', 0], ['Fev', 0], ['Mar', 0],
+          ['Abr', 0], ['Mai', 0], ['Jun', 0],
+          ['Jul', 0], ['Ago', 0], ['Set', 0],
+          ['Out', 0], ['Nov', 0], ['Dez', 0]
+        ];
+      }
+      if(!produto.quantidade) {
+        produto.quantidade = 1;
+      }
+      produto.historicoCompras[parseInt(moment().format('M'))][1] += parseInt(produto.quantidade);
     });
 
-    setProdutos(produtos)
+    setProdutos(produtosAtualizados)
     setProdutosFaltantes([]);
     validarProdutosSugeridos([]);
   };

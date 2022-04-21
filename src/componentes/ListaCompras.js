@@ -102,7 +102,11 @@ const ListaCompras = (props) => {
                             { produtosSugeridos.map((prod, idx) => (
                                 <tr key={idx}>
                                     <td>{prod.descricao}</td>
-                                    <td><label className="opacityText italicText">{`Comprado à ${prod.diasUltimaCompra} dias`}</label></td>
+                                    <td>
+                                        <div className="alinha-final">
+                                            <label className="opacityText italicText">{`Comprado à ${prod.diasUltimaCompra} dias`}</label>
+                                        </div>
+                                    </td>
                                 </tr>
                             )) }
                         </tbody>

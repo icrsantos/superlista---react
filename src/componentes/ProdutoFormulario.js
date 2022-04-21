@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import { Chart } from "react-google-charts";
 import "./Produto.css";
 import moment from 'moment';
 
 const ProdutoFormulario = (props) => {  
+    const { id } = useParams();
+    
     const [produto, setProduto] = useState(props.produto);
     const [isEditing, setIsEditing ] = useState(props.isEditing);
-    const { id } = useParams();
     
     useEffect(() => {
         if(isEditing && !produto.id) {
@@ -18,11 +20,31 @@ const ProdutoFormulario = (props) => {
     /** Pesquisa produtos faltantes por nome **/
     const salvarProduto = () => {
         if(!produto.historicoPrecos) {
-            produto.historicoPrecos = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+            produto.historicoPrecos = [
+                ['Mês', 'Preço'],
+                ['Jan', 0], ['Fev', 0], ['Mar', 0],
+                ['Abr', 0], ['Mai', 0], ['Jun', 0],
+                ['Jul', 0], ['Ago', 0], ['Set', 0],
+                ['Out', 0], ['Nov', 0], ['Dez', 0],
+            ];
         }
         
         if(produto.preco) {
-            produto.historicoPrecos[parseInt(moment().format('M'))] = parseFloat(produto.preco);
+            produto.historicoPrecos[(parseInt(moment().format('M')))][1] = parseFloat(produto.preco);
+        }
+
+        if(!produto.historicoCompras) {
+            produto.historicoCompras = [
+                ['Mês', 'Quantidade'],
+                ['Jan', 0], ['Fev', 0], ['Mar', 0],
+                ['Abr', 0], ['Mai', 0], ['Jun', 0],
+                ['Jul', 0], ['Ago', 0], ['Set', 0],
+                ['Out', 0], ['Nov', 0], ['Dez', 0]
+            ];
+        }
+
+        if(produto.quantidade) {
+            produto.historicoCompras[parseInt(moment().format('M'))][1] += parseInt(produto.quantidade);
         }
 
         if(isEditing) {
@@ -99,7 +121,21 @@ const ProdutoFormulario = (props) => {
                     <input type="number" autoComplete="off" id="quantidade" defaultValue={ produto.quantidade } onChange={ (e) => produto.quantidade = e.target.value }/>
                 </div>
                 <div id="divGraficosProduto" className={ isEditing ? "mt1" : "mt1 hidden"}>
-                    <canvas id="chartHistoricoProduto"></canvas>
+                    <Chart
+                        width={'22rem'}
+                        height={'20rem'}
+                        chartType="Bar"
+                        data={produto.historicoPrecos}
+                        options={{ title: 'Histórico de Preços'}}
+                    />
+                    <Chart
+                        className="mt2"
+                        width={'22rem'}
+                        height={'20rem'}
+                        chartType="Bar"
+                        data={produto.historicoCompras}
+                        options={{ title: 'Histórico de Compras'}}
+                    />
                 </div>
             </div>
              
