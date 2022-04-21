@@ -7,8 +7,10 @@ const Produto = (props) => {
 
     const alteraProdFaltante = (produto, value) => {
         if(value) {
+            produto.acabou = true;
             props.onAdicionaFaltante(produto);
         } else {
+            produto.acabou = false;
             props.onRemoveFaltante(produto);
         }
     }
@@ -40,11 +42,11 @@ const Produto = (props) => {
                         <tbody id="produtosRow">
                             { props.produtos.map((prod, idx) => (
                                 <tr key={idx}>
-                                    <td><Link className="link" id="nomeProduto" to={ `produtos/edicao/${idx}` }>{prod.descricao}</Link></td>
+                                    <td><Link className="link" id="nomeProduto" to={ `produto/${prod.id}` }>{prod.descricao}</Link></td>
                                     <td>
                                         <div className="formButtonGroup">
                                            <label className="switch">
-                                               <input type="checkbox" id={`check_${idx}`} checked={prod.acabou} onClick={ (e) => alteraProdFaltante(prod, e.target.checked) }/>
+                                               <input type="checkbox" id={`check_${idx}`} defaultChecked={ prod.acabou } onClick={ (e) => alteraProdFaltante(prod, e.target.checked) }/>
                                                 <span className="round slider"></span>
                                             </label> 
                                         </div>

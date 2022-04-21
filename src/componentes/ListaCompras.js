@@ -1,12 +1,48 @@
-import React, { Component } from "react";
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import "./ListaCompras.css";
 
 const ListaCompras = (props) => {
-    
-    /** Pesquisa produtos faltantes por nome **/
-    const pesquisar = (value) => { };
+    const [produtosSugeridos, setProdutosSugeridos] = useState(props.produtosSugeridos);
+    const [produtosFaltantes, setProdutosFaltantes] = useState(props.produtosFaltantes);
 
-    const finalizarLista = () => { };
+    /** Pesquisa produtos faltantes por nome **/
+    const pesquisar = (value) => {
+        let produtosFiltrados = [];
+        props.produtosFaltantes.forEach((produto) => {
+            if(removerCaracteresEspeciais(produto.descricao).includes(removerCaracteresEspeciais(value))) {
+                produtosFiltrados.push(produto);
+            }
+        })
+        
+        setProdutosFaltantes(produtosFiltrados);
+    };
+
+    const removerCaracteresEspeciais = (str) => {
+        return !str ? str : str.normalize('NFD').replace(/[^\w\s]/gi, '').trim().toLowerCase();
+    }
+
+    const finalizarLista = () => { 
+        if (window.confirm("Deseja realmente finalizar esta lista de compras?")) {
+            props.onFinalizarLista();
+        }
+    };
+
+    const adicionarProdutoSugeridoALista = (produto) => {
+        produto.acabou = true;
+
+        props.onAlteraProduto(produto);
+        props.onAdicionaFaltante(produto);
+        props.onRemoveSugerido(produto);
+    } 
+
+    const possuiProdutosFaltantes = () => {
+        return produtosFaltantes && produtosFaltantes.length > 0
+    }
+
+    const possuiProdutosSugeridos = () => {
+        return produtosSugeridos && produtosSugeridos.length > 0
+    }
 
     return (
         <div id="componente1">
@@ -16,24 +52,61 @@ const ListaCompras = (props) => {
 
             <div className="componentContent">
                 <div className="field">
-                    <input id="fieldPesquisa" type="text" onKeyPress={ (e) => pesquisar(e.target.value) } autoComplete="off" placeholder="Pesquisar ..."/>
+                    <input id="fieldPesquisa" type="text" onChange={ (e) => pesquisar(e.target.value) } autoComplete="off" placeholder="Pesquisar ..."/>
                 </div>
 
-                <div id="blank">
+                <div id="blank" className={ !possuiProdutosFaltantes() && !possuiProdutosSugeridos() ? "" : "hidden" }>
                     <p>Lista Vazia</p>
                 </div>
 
-                <div id="compras" className="hidden">   
+                <div id="divProdutosFaltantes" className={ possuiProdutosFaltantes() ? "" : "hidden" }>
                     <h3 className="opacityText mt1" id="labelProdFaltantesTitle">PRODUTOS FALTANTES</h3> 
-                    
-
-                    <div className="hidden" id="divProdutosFaltantes">
-                        
-                    </div>
+                    <table id="produtosFaltantes" className="mt1">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Quantidade</th>
+                                <th><div className="alinha-final">Comprado</div></th>
+                            </tr>
+                        </thead>
+                        <tbody id="produtosRow">
+                            { produtosFaltantes.map((prod, idx) => (
+                                <tr key={idx}>
+                                    <td><Link className="link" id="nomeProduto" to={ `produto/${prod.id}` }>{prod.descricao}</Link></td>
+                                    <td>{ prod.quantidade ? `${prod.quantidade} - ${prod.tpQuantidade}` : "" }</td>
+                                    <td>
+                                        <div className="formButtonGroup">
+                                            <input type="checkbox"></input>
+                                        </div>
+                                    </td>
+                                </tr>
+                            )) }
+                        </tbody>
+                    </table>
 
                     <div id="finalizarLista" className="mt1">
                         <button className="button primary" onClick={ finalizarLista }>Finalizar Lista de Compras</button>
                     </div>
+                </div>
+
+                <div id="divProdutosSugeridos" className={ possuiProdutosSugeridos() ? '': "hidden" }>
+                    <h3 className="opacityText mt2" id="labelProdSugeridosTitle">PRODUTOS SUGERIDOS</h3> 
+                    <table id="produtosSugeridos">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="produtosRow">
+                            { produtosSugeridos.map((prod, idx) => (
+                                <tr key={idx}>
+                                    <td>{prod.descricao}</td>
+                                    <td><label className="italicText" onClick={ () => adicionarProdutoSugeridoALista(prod) }>Adicionar a lista</label></td>
+                                </tr>
+                            )) }
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

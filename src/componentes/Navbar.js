@@ -5,7 +5,7 @@ import "./Navbar.css";
 const Navbar = () => {
   const location = useLocation();
 
-  if(location.pathname.includes("/novo") || location.pathname.includes("/edicao")) {
+  if(location.pathname.includes("produto/")) {
     return <div></div>;
   } else {
     return (

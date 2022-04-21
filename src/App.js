@@ -5,8 +5,27 @@ import ProdutoFormulario from "./componentes/ProdutoFormulario";
 import Cabecalho from "./componentes/Cabecalho";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import Navbar from "./componentes/Navbar";
+import moment from 'moment';
 
 const App = () =>  {
+  /** Funções de manipulação dos produtos **/
+  let produtosLocalStorage = JSON.parse(localStorage.getItem("produtos"));
+  if (!produtosLocalStorage) produtosLocalStorage = [];
+  const [produtos, setProdutos] = useState(produtosLocalStorage);
+  
+  const adicionaProduto = (produto) => setProdutos([...produtos, produto]);
+  const alteraProduto = (produto) => {
+    let produtoInserido = produtos.filter(prod => removerCaracteresEspeciais(prod.descricao) == removerCaracteresEspeciais(produto.descricao));
+    let i = produtos.indexOf(produtoInserido);
+    
+    const novoArrayProdutos = [...produtos];
+    novoArrayProdutos[i] = produto;
+    setProdutos(novoArrayProdutos);
+  };
+
+  const removeProduto = (p) => setProdutos(produtos.filter((produto) => produto.id !== p.id));
+  const buscaProduto = (id) => { return produtos.filter((p) => p.id == id) };
+
   /** Funções de manipulação dos produtos faltantes **/
   let prodFaltantesLocalStorage = JSON.parse(localStorage.getItem("produtosFaltantes"));
   if (!prodFaltantesLocalStorage) prodFaltantesLocalStorage = [];
@@ -14,48 +33,76 @@ const App = () =>  {
 
   const adicionaProdutoFaltante = (p) => setProdutosFaltantes([...produtosFaltantes, p]);
   const removeProdutoFaltante = (p) => setProdutosFaltantes(produtosFaltantes.filter((produto) => produto.id !== p.id));
+  const finalizarListaCompras = () => {
+      produtos.filter(produto => produto.acabou).forEach((produto) => {
+        produto.acabou = false
+        produto.ultimaCompra = moment().format('YYYY-MM-DD');
 
-   /** Funções de manipulação dos produtos sugeridos **/
-   let prodSugeridosLocalStorage = JSON.parse(localStorage.getItem("produtosSugeridos"));
-   if (!prodSugeridosLocalStorage) prodSugeridosLocalStorage = [];
-   const [produtosSugeridos, setProdutosSugeridos] = useState(prodSugeridosLocalStorage);
- 
-   const adicionaProdutoSugerido = (p) => setProdutosSugeridos([...produtosSugeridos, p]);
-   const removeProdutoSugerido = (p) => setProdutosSugeridos(produtosSugeridos.filter((produto) => produto.id !== p.id));
-   
-   /** Funções de manipulação dos produtos **/
-   let produtosLocalStorage = JSON.parse(localStorage.getItem("produtos"));
-   if (!produtosLocalStorage) produtosLocalStorage = [];
-   const [produtos, setProdutos] = useState(produtosLocalStorage);
-  
-  const adicionaProduto = (produto) => setProdutos([...produtos, produto]);
-  const alteraProduto = (produto) => {
-    let produtoInserido = produtos.filter(prod => removerCaracteresEspeciais(prod.descricao) == removerCaracteresEspeciais(produto.descricao));
+        if(!produto.historicoCompras) {
+          produto.historicoCompras = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        }
 
-    const i = produtos.indexOf(produtoInserido);
-    const novoArrayProdutos = [...produtos];
-    novoArrayProdutos[i] = produto;
-    setProdutos(novoArrayProdutos);
+        if(!produto.quantidade) {
+          produto.quantidade = 1;
+        }
+
+        produto.historicoCompras[parseInt(moment().format('M'))] += parseInt(produto.quantidade);
+    });
+
+    setProdutos(produtos)
+    setProdutosFaltantes([]);
   };
 
-  const removeProduto = (p) => setProdutos(produtos.filter((produto) => produto.id !== p.id));
+  /** Funções de manipulação dos produtos sugeridos **/
+  const numeroDiasPeriodicidade = (periodicidade) => {
+    switch(periodicidade) {
+        case "semanal" : return 7;
+        case "quinzenal": return 15;
+        case "mensal": return 30;
+    }
+  }
+
+  const validarProdutosSugeridos = () => {
+    let prodSugerido = [];
+    if(produtos && produtos.length > 0) {
+      produtos.forEach((produto) => {
+          let ultimaCompra = new Date(produto.ultimaCompra)
+          let timeDiff = Math.abs(new Date() - ultimaCompra);
+          let totalDias = Math.ceil(timeDiff / (1000 * 3600 * 24)); 
+
+          if(totalDias >= numeroDiasPeriodicidade(produto.periodicidade)
+              && produtosFaltantes.filter(prod => prod.id == produto.id).length == 0) {
+              prodSugerido.push(produto);
+          }
+      });
+    }
+    
+    return prodSugerido;
+  }
+
+  let prodSugeridosLocalStorage = JSON.parse(localStorage.getItem("produtosSugeridos"));
+  if (!prodSugeridosLocalStorage) prodSugeridosLocalStorage = [];
+  const [produtosSugeridos, setProdutosSugeridos] = useState(prodSugeridosLocalStorage);
+ 
+  const adicionaProdutoSugerido = (p) => setProdutosSugeridos([...produtosSugeridos, p]);
+  const removeProdutoSugerido = (p) => setProdutosSugeridos(produtosSugeridos.filter((produto) => produto.id !== p.id));
 
   useEffect(() => {
     localStorage.setItem("produtos", JSON.stringify(produtos));
     localStorage.setItem("produtosFaltantes", JSON.stringify(produtosFaltantes));
-    localStorage.setItem("produtosSugeridos", JSON.stringify(produtosSugeridos));
+    localStorage.setItem("produtosSugeridos", JSON.stringify(validarProdutosSugeridos()));
   });
 
   const removerCaracteresEspeciais = (str) => {
-    return str.normalize('NFD').replace(/[^\w\s]/gi, '').trim().toLowerCase();
+    return !str ? str : str.normalize('NFD').replace(/[^\w\s]/gi, '').trim().toLowerCase();
   }
 
   const nextId = () => {
     let idMax = 0;
     for(const prod of produtos) {
-        if(prod.id > idMax) {
-            idMax = prod.id;
-        }
+      if(prod.id > idMax) {
+        idMax = prod.id;
+      }
     }
 
     return idMax;
@@ -67,12 +114,21 @@ const App = () =>  {
       <Router>
         <Switch>
             <Route exact path="/">
-              <ListaCompras/>
+              <ListaCompras
+                produtosFaltantes={ produtosFaltantes }
+                produtosSugeridos={ produtosSugeridos }
+                onAlteraProduto={ alteraProduto }
+                onFinalizarLista={ finalizarListaCompras }
+                onRemoveSugerido={ removeProdutoSugerido }
+                onAdicionaFaltante={ adicionaProdutoFaltante }
+              />
             </Route>
             <Route exact path="/produto">
               <Produto 
                 onAdicionaFaltante={ adicionaProdutoFaltante }
                 onRemoveFaltante={ removeProdutoFaltante }
+                onAdicionaSugerido= { adicionaProdutoSugerido }
+                onRemoveSugerido= { removeProdutoSugerido }
                 produtos={ produtos }
               />
             </Route>
@@ -82,12 +138,17 @@ const App = () =>  {
                 isEditing={ false }
                 nextId = { nextId }
                 onAdiciona={ adicionaProduto }
-                onAltera={ alteraProduto }
                 onRemove={ removeProduto }
               />
             </Route>
             <Route exact path="/produto/:id">
-              <ProdutoFormulario/>
+              <ProdutoFormulario
+                produto={ {} }
+                buscaProduto={ buscaProduto }
+                isEditing={ true }
+                onAltera={ alteraProduto }
+                onRemove={ removeProduto }
+              />
             </Route>
         </Switch>
         <Navbar />

@@ -150,10 +150,12 @@ p {
 
 .componentContent {
   padding: 1rem;
+  overflow:auto;
 }
 
 .componentHeader + .componentContent {
   padding-top: 5.5rem;
+  padding-bottom: 5.5rem;
 }
 
 .navBar {
