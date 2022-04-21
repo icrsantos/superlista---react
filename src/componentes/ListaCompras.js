@@ -73,7 +73,7 @@ const ListaCompras = (props) => {
                             { produtosFaltantes.map((prod, idx) => (
                                 <tr key={idx}>
                                     <td><Link className="link" id="nomeProduto" to={ `produto/${prod.id}` }>{prod.descricao}</Link></td>
-                                    <td>{ prod.quantidade ? `${prod.quantidade} - ${prod.tpQuantidade}` : "" }</td>
+                                    <td>{ prod.quantidade ? prod.quantidade + ( prod.tpQuantidade ? " - " + prod.tpQuantidade : "") : "" }</td>
                                     <td>
                                         <div className="formButtonGroup">
                                             <input type="checkbox"></input>
@@ -85,7 +85,7 @@ const ListaCompras = (props) => {
                     </table>
 
                     <div id="finalizarLista" className="mt1">
-                        <button className="button primary" onClick={ finalizarLista }>Finalizar Lista de Compras</button>
+                        <button className="button primary" onClick={ finalizarLista }>Finalizar lista de compras</button>
                     </div>
                 </div>
 
@@ -102,7 +102,7 @@ const ListaCompras = (props) => {
                             { produtosSugeridos.map((prod, idx) => (
                                 <tr key={idx}>
                                     <td>{prod.descricao}</td>
-                                    <td><label className="italicText" onClick={ () => adicionarProdutoSugeridoALista(prod) }>Adicionar a lista</label></td>
+                                    <td><label className="opacityText italicText">{`Comprado à ${prod.diasUltimaCompra} dias`}</label></td>
                                 </tr>
                             )) }
                         </tbody>

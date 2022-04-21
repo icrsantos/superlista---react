@@ -8,6 +8,7 @@ import Navbar from "./componentes/Navbar";
 import moment from 'moment';
 
 const App = () =>  {
+
   /** Funções de manipulação dos produtos **/
   let produtosLocalStorage = JSON.parse(localStorage.getItem("produtos"));
   if (!produtosLocalStorage) produtosLocalStorage = [];
@@ -31,8 +32,18 @@ const App = () =>  {
   if (!prodFaltantesLocalStorage) prodFaltantesLocalStorage = [];
   const [produtosFaltantes, setProdutosFaltantes] = useState(prodFaltantesLocalStorage);
 
-  const adicionaProdutoFaltante = (p) => setProdutosFaltantes([...produtosFaltantes, p]);
-  const removeProdutoFaltante = (p) => setProdutosFaltantes(produtosFaltantes.filter((produto) => produto.id !== p.id));
+  const adicionaProdutoFaltante = (p) => {
+    let prodFaltante = [...produtosFaltantes, p];
+    setProdutosFaltantes([...produtosFaltantes, p])
+    validarProdutosSugeridos(prodFaltante);
+  };
+
+  const removeProdutoFaltante = (p) => {
+    let prodFaltante = produtosFaltantes.filter((produto) => produto.id !== p.id);
+    setProdutosFaltantes(prodFaltante)
+    validarProdutosSugeridos(prodFaltante);
+  }
+
   const finalizarListaCompras = () => {
       produtos.filter(produto => produto.acabou).forEach((produto) => {
         produto.acabou = false
@@ -51,6 +62,7 @@ const App = () =>  {
 
     setProdutos(produtos)
     setProdutosFaltantes([]);
+    validarProdutosSugeridos([]);
   };
 
   /** Funções de manipulação dos produtos sugeridos **/
@@ -62,35 +74,39 @@ const App = () =>  {
     }
   }
 
-  const validarProdutosSugeridos = () => {
+  const montarProdutosSugeridos = (prodFaltante) => {
     let prodSugerido = [];
     if(produtos && produtos.length > 0) {
       produtos.forEach((produto) => {
-          let ultimaCompra = new Date(produto.ultimaCompra)
-          let timeDiff = Math.abs(new Date() - ultimaCompra);
-          let totalDias = Math.ceil(timeDiff / (1000 * 3600 * 24)); 
-
-          if(totalDias >= numeroDiasPeriodicidade(produto.periodicidade)
-              && produtosFaltantes.filter(prod => prod.id == produto.id).length == 0) {
-              prodSugerido.push(produto);
-          }
+        let ultimaCompra = new Date(produto.ultimaCompra)
+        let timeDiff = Math.abs(new Date() - ultimaCompra);
+        let totalDias = Math.ceil(timeDiff / (1000 * 3600 * 24)); 
+        if(totalDias >= numeroDiasPeriodicidade(produto.periodicidade)
+            && prodFaltante.filter(prod => prod.id == produto.id).length == 0) {
+            produto.diasUltimaCompra = totalDias;
+            prodSugerido.push(produto);
+        }
       });
     }
-    
+
     return prodSugerido;
   }
 
   let prodSugeridosLocalStorage = JSON.parse(localStorage.getItem("produtosSugeridos"));
-  if (!prodSugeridosLocalStorage) prodSugeridosLocalStorage = [];
+  if (!prodSugeridosLocalStorage || prodSugeridosLocalStorage.length == 0) prodSugeridosLocalStorage = montarProdutosSugeridos(produtosFaltantes);
   const [produtosSugeridos, setProdutosSugeridos] = useState(prodSugeridosLocalStorage);
- 
+  
+  const validarProdutosSugeridos = (prodFaltante) => {
+    setProdutosSugeridos(montarProdutosSugeridos(prodFaltante));
+  };
+
   const adicionaProdutoSugerido = (p) => setProdutosSugeridos([...produtosSugeridos, p]);
   const removeProdutoSugerido = (p) => setProdutosSugeridos(produtosSugeridos.filter((produto) => produto.id !== p.id));
 
   useEffect(() => {
     localStorage.setItem("produtos", JSON.stringify(produtos));
     localStorage.setItem("produtosFaltantes", JSON.stringify(produtosFaltantes));
-    localStorage.setItem("produtosSugeridos", JSON.stringify(validarProdutosSugeridos()));
+    localStorage.setItem("produtosSugeridos", JSON.stringify(produtosSugeridos));
   });
 
   const removerCaracteresEspeciais = (str) => {
