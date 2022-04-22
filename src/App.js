@@ -36,6 +36,7 @@ const App = () =>  {
     validarProdutosSugeridos(novoArrayProdutos, produtosFaltantes);
   }
 
+  /** retorna um produto a partir do id **/
   const buscaProduto = (id) => { return produtos.filter((p) => p.id == id) };
 
   /** Funções de manipulação dos produtos faltantes **/
@@ -55,6 +56,7 @@ const App = () =>  {
     validarProdutosSugeridos(produtos, prodFaltante);
   }
 
+  /** atualiza os produtos e finaliza uma lista de compras **/
   const finalizarListaCompras = () => {
     let produtosAtualizados = produtos;
     let prodFaltante = [];
@@ -91,6 +93,7 @@ const App = () =>  {
     }
   }
 
+  /** monta a lista de produtos sugeridos a partir da ultima compra e periodicidade **/
   const montarProdutosSugeridos = (prods, prodFaltante) => {
     let prodSugerido = [];
     if(prods && prods.length > 0) {
@@ -113,6 +116,7 @@ const App = () =>  {
   if (!prodSugeridosLocalStorage || prodSugeridosLocalStorage.length == 0) prodSugeridosLocalStorage = montarProdutosSugeridos(produtos, produtosFaltantes);
   const [produtosSugeridos, setProdutosSugeridos] = useState(prodSugeridosLocalStorage);
   
+  /** atualiza state dos produtos sugeridos **/
   const validarProdutosSugeridos = (prods, prodFaltante) => {
     setProdutosSugeridos(montarProdutosSugeridos(prods, prodFaltante));
   };
@@ -130,6 +134,7 @@ const App = () =>  {
     return !str ? str : str.normalize('NFD').replace(/[^\w\s]/gi, '').trim().toLowerCase();
   }
 
+  /** retorna um id para o produto **/
   const nextId = () => {
     let idMax = 0;
     for(const prod of produtos) {

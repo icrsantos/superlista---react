@@ -10,6 +10,7 @@ const ProdutoFormulario = (props) => {
     const [produto, setProduto] = useState(props.produto);
     const [isEditing, setIsEditing ] = useState(props.isEditing);
     
+    /** Busca um produto para a edição a partir do parametro da url **/
     useEffect(() => {
         if(isEditing && !produto.id) {
             let prodEdicao = props.buscaProduto(id)[0];
@@ -17,7 +18,7 @@ const ProdutoFormulario = (props) => {
         }
     }); 
 
-    /** Pesquisa produtos faltantes por nome **/
+    /** Valida e salva a adição e edição de um produto **/
     const salvarProduto = () => {
         if(!produto.historicoPrecos) {
             produto.historicoPrecos = [
@@ -63,6 +64,7 @@ const ProdutoFormulario = (props) => {
         setProduto({});
     };
 
+    /** Remove um produto **/
     const removerProduto = () => {
         if (window.confirm("Deseja realmente remover este produto?")) {
             props.onRemove(produto)

@@ -22,6 +22,7 @@ const ListaCompras = (props) => {
         return !str ? str : str.normalize('NFD').replace(/[^\w\s]/gi, '').trim().toLowerCase();
     }
 
+    /** Finaliza a lista de compras **/
     const finalizarLista = () => { 
         if (window.confirm("Deseja realmente finalizar esta lista de compras?")) {
             props.onFinalizarLista();
@@ -29,6 +30,7 @@ const ListaCompras = (props) => {
         }
     };
 
+    /** Adiciona a lista de compras um produto sugerido **/
     const adicionarProdutoSugeridoALista = (produto) => {
         produto.acabou = true;
 
@@ -40,6 +42,7 @@ const ListaCompras = (props) => {
         setProdutosFaltantes([...produtosFaltantes, produto]);
     } 
 
+    /** Funções de validação da existencia de produtos faltantes ou sugeridos **/
     const possuiProdutosFaltantes = () => {
         return produtosFaltantes && produtosFaltantes.length > 0
     }

@@ -5,6 +5,7 @@ import "./Produto.css";
 const Produto = (props) => {
     const [produtos, setProdutos] = useState(props.produtos);
 
+    /** Adiciona e remove um produto da lista de produtos faltantes **/
     const alteraProdFaltante = (produto, value) => {
         if(value) {
             produto.acabou = true;
