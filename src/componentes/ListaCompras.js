@@ -25,6 +25,7 @@ const ListaCompras = (props) => {
     const finalizarLista = () => { 
         if (window.confirm("Deseja realmente finalizar esta lista de compras?")) {
             props.onFinalizarLista();
+            setProdutosFaltantes([]);
         }
     };
 
@@ -34,6 +35,9 @@ const ListaCompras = (props) => {
         props.onAlteraProduto(produto);
         props.onAdicionaFaltante(produto);
         props.onRemoveSugerido(produto);
+
+        setProdutosSugeridos(produtosSugeridos.filter(p => p.id !== produto.id));
+        setProdutosFaltantes([...produtosFaltantes, produto]);
     } 
 
     const possuiProdutosFaltantes = () => {
@@ -84,13 +88,13 @@ const ListaCompras = (props) => {
                         </tbody>
                     </table>
 
-                    <div id="finalizarLista" className="mt1">
+                    <div id="finalizarLista" className="mt2">
                         <button className="button primary" onClick={ finalizarLista }>Finalizar lista de compras</button>
                     </div>
                 </div>
 
                 <div id="divProdutosSugeridos" className={ possuiProdutosSugeridos() ? '': "hidden" }>
-                    <h3 className="opacityText mt2" id="labelProdSugeridosTitle">PRODUTOS SUGERIDOS</h3> 
+                    <h3 className="opacityText italicText mt3" id="labelProdSugeridosTitle">PRODUTOS SUGERIDOS</h3> 
                     <table id="produtosSugeridos">
                         <thead>
                             <tr>
@@ -101,10 +105,10 @@ const ListaCompras = (props) => {
                         <tbody id="produtosRow">
                             { produtosSugeridos.map((prod, idx) => (
                                 <tr key={idx}>
-                                    <td>{prod.descricao}</td>
+                                    <td>{prod.descricao}<label className="opacityText italicText">{` (Comprado à ${prod.diasUltimaCompra} dias)`}</label></td>
                                     <td>
                                         <div className="alinha-final">
-                                            <label className="opacityText italicText">{`Comprado à ${prod.diasUltimaCompra} dias`}</label>
+                                            <label className="italicText" onClick={ (e) => adicionarProdutoSugeridoALista(prod) }>Adicionar</label>
                                         </div>
                                     </td>
                                 </tr>

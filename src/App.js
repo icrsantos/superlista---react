@@ -14,7 +14,11 @@ const App = () =>  {
   if (!produtosLocalStorage) produtosLocalStorage = [];
   const [produtos, setProdutos] = useState(produtosLocalStorage);
   
-  const adicionaProduto = (produto) => setProdutos([...produtos, produto]);
+  const adicionaProduto = (produto) => {
+    setProdutos([...produtos, produto]);
+    validarProdutosSugeridos(produtosFaltantes);
+  }
+
   const alteraProduto = (produto) => {
     let produtoInserido = produtos.filter(prod => removerCaracteresEspeciais(prod.descricao) == removerCaracteresEspeciais(produto.descricao));
     let i = produtos.indexOf(produtoInserido);
@@ -22,9 +26,14 @@ const App = () =>  {
     const novoArrayProdutos = [...produtos];
     novoArrayProdutos[i] = produto;
     setProdutos(novoArrayProdutos);
+    validarProdutosSugeridos(produtosFaltantes);
   };
 
-  const removeProduto = (p) => setProdutos(produtos.filter((produto) => produto.id !== p.id));
+  const removeProduto = (p) => {
+    setProdutos(produtos.filter((produto) => produto.id !== p.id));
+    validarProdutosSugeridos(produtosFaltantes);
+  }
+
   const buscaProduto = (id) => { return produtos.filter((p) => p.id == id) };
 
   /** Funções de manipulação dos produtos faltantes **/
@@ -45,7 +54,9 @@ const App = () =>  {
   }
 
   const finalizarListaCompras = () => {
-    let produtosAtualizados = produtos
+    let produtosAtualizados = produtos;
+    let prodFaltante = [];
+
     produtosAtualizados.filter(produto => produto.acabou).forEach((produto) => {
       produto.acabou = false
       produto.ultimaCompra = moment().format('YYYY-MM-DD');
@@ -65,7 +76,7 @@ const App = () =>  {
     });
 
     setProdutos(produtosAtualizados)
-    setProdutosFaltantes([]);
+    setProdutosFaltantes(prodFaltante)
     validarProdutosSugeridos([]);
   };
 
