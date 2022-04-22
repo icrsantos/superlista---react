@@ -15,8 +15,9 @@ const App = () =>  {
   const [produtos, setProdutos] = useState(produtosLocalStorage);
   
   const adicionaProduto = (produto) => {
-    setProdutos([...produtos, produto]);
-    validarProdutosSugeridos(produtosFaltantes);
+    let novoArrayProdutos = [...produtos, produto];
+    setProdutos(novoArrayProdutos);
+    validarProdutosSugeridos(novoArrayProdutos, produtosFaltantes);
   }
 
   const alteraProduto = (produto) => {
@@ -26,12 +27,13 @@ const App = () =>  {
     const novoArrayProdutos = [...produtos];
     novoArrayProdutos[i] = produto;
     setProdutos(novoArrayProdutos);
-    validarProdutosSugeridos(produtosFaltantes);
+    validarProdutosSugeridos(novoArrayProdutos, produtosFaltantes);
   };
 
   const removeProduto = (p) => {
-    setProdutos(produtos.filter((produto) => produto.id !== p.id));
-    validarProdutosSugeridos(produtosFaltantes);
+    let novoArrayProdutos = produtos.filter((produto) => produto.id !== p.id);
+    setProdutos(novoArrayProdutos);
+    validarProdutosSugeridos(novoArrayProdutos, produtosFaltantes);
   }
 
   const buscaProduto = (id) => { return produtos.filter((p) => p.id == id) };
@@ -44,13 +46,13 @@ const App = () =>  {
   const adicionaProdutoFaltante = (p) => {
     let prodFaltante = [...produtosFaltantes, p];
     setProdutosFaltantes([...produtosFaltantes, p])
-    validarProdutosSugeridos(prodFaltante);
+    validarProdutosSugeridos(produtos, prodFaltante);
   };
 
   const removeProdutoFaltante = (p) => {
     let prodFaltante = produtosFaltantes.filter((produto) => produto.id !== p.id);
     setProdutosFaltantes(prodFaltante)
-    validarProdutosSugeridos(prodFaltante);
+    validarProdutosSugeridos(produtos, prodFaltante);
   }
 
   const finalizarListaCompras = () => {
@@ -77,7 +79,7 @@ const App = () =>  {
 
     setProdutos(produtosAtualizados)
     setProdutosFaltantes(prodFaltante)
-    validarProdutosSugeridos([]);
+    validarProdutosSugeridos(produtosAtualizados, []);
   };
 
   /** Funções de manipulação dos produtos sugeridos **/
@@ -89,10 +91,10 @@ const App = () =>  {
     }
   }
 
-  const montarProdutosSugeridos = (prodFaltante) => {
+  const montarProdutosSugeridos = (prods, prodFaltante) => {
     let prodSugerido = [];
-    if(produtos && produtos.length > 0) {
-      produtos.forEach((produto) => {
+    if(prods && prods.length > 0) {
+      prods.forEach((produto) => {
         let ultimaCompra = new Date(produto.ultimaCompra)
         let timeDiff = Math.abs(new Date() - ultimaCompra);
         let totalDias = Math.ceil(timeDiff / (1000 * 3600 * 24)); 
@@ -108,11 +110,11 @@ const App = () =>  {
   }
 
   let prodSugeridosLocalStorage = JSON.parse(localStorage.getItem("produtosSugeridos"));
-  if (!prodSugeridosLocalStorage || prodSugeridosLocalStorage.length == 0) prodSugeridosLocalStorage = montarProdutosSugeridos(produtosFaltantes);
+  if (!prodSugeridosLocalStorage || prodSugeridosLocalStorage.length == 0) prodSugeridosLocalStorage = montarProdutosSugeridos(produtos, produtosFaltantes);
   const [produtosSugeridos, setProdutosSugeridos] = useState(prodSugeridosLocalStorage);
   
-  const validarProdutosSugeridos = (prodFaltante) => {
-    setProdutosSugeridos(montarProdutosSugeridos(prodFaltante));
+  const validarProdutosSugeridos = (prods, prodFaltante) => {
+    setProdutosSugeridos(montarProdutosSugeridos(prods, prodFaltante));
   };
 
   const adicionaProdutoSugerido = (p) => setProdutosSugeridos([...produtosSugeridos, p]);

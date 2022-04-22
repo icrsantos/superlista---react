@@ -73,16 +73,16 @@ const ProdutoFormulario = (props) => {
         <div id="componente3">
             <div className="componentHeader">
                 <h1 className="componentTitle" id="tituloProduto">Novo Produto</h1>
-                <Link to="/produto">
+                <Link to="/produto" className={isEditing ? "": "hidden"}>
                     <button id="btnRemov" className="button primary" onClick={ removerProduto }>
                         <img src="../assets/delete.png" alt="Remover Produto"/>
                     </button>
                 </Link>
             </div>
 
-            <div className="componentContent">
+            <div className="componentContent" style={{ paddingBottom: '1rem' }}>
                 <div className="field mt1">
-                    <label className="fifth">Nome</label>
+                    <label className="fifth">Nome</label><label style={{ color: 'red' }}>*</label>
                     <input type="text" autoComplete="off" id="descricao" defaultValue={ produto.descricao } onChange={ (e) => produto.descricao = e.target.value }/>
                 </div>
                 <div className="field mt1">
@@ -95,7 +95,8 @@ const ProdutoFormulario = (props) => {
                 </div>
                 <div className="field mt1">
                     <label className="fifth">Periodicidade da compra</label>
-                    <select name="selectPeriodicidade" defaultValue={ produto.periodicidade } onChange={ (e) => produto.periodicidade = e.target.value }>
+                    <select name="selectPeriodicidade" id="periodicidade" value={ produto.periodicidade } onChange={ (e) => produto.periodicidade = e.target.value }>
+                        <option></option>
                         <option value="semanal">Semanal</option>
                         <option value="quinzenal">Quinzenal</option>
                         <option value="mensal">Mensal</option>
@@ -103,11 +104,12 @@ const ProdutoFormulario = (props) => {
                 </div>
                 <div className="field mt1">
                     <label className="fifth">Último valor pago</label>
-                    <input type="number" autoComplete="off" id="ultimoValorPago" defaultValue={ produto.preco } onChange={ (e) => produto.preco = e.target.value }/>
+                    <input type="text" autoComplete="off" id="ultimoValorPago" defaultValue={ produto.preco } onChange={ (e) => produto.preco = e.target.value }/>
                 </div>
                 <div className="field mt1">
                     <label className="fifth">Tipo da quantidade</label>
-                    <select name="selectTpQuantidade" defaultValue={ produto.tpQuantidade } onChange={ (e) => produto.tpQuantidade = e.target.value }> 
+                    <select name="selectTpQuantidade" id="tpQuantidade" value={ produto.tpQuantidade } onChange={ (e) => produto.tpQuantidade = e.target.value }> 
+                        <option></option>
                         <option value="kilo">Kilo</option>
                         <option value="litro">Litro</option>
                         <option value="pacote">Pacote</option>
@@ -118,23 +120,23 @@ const ProdutoFormulario = (props) => {
                 </div>
                 <div className="field mt1">
                     <label className="fifth">Quantidade</label>
-                    <input type="number" autoComplete="off" id="quantidade" defaultValue={ produto.quantidade } onChange={ (e) => produto.quantidade = e.target.value }/>
+                    <input type="text" autoComplete="off" id="quantidade" defaultValue={ produto.quantidade } onChange={ (e) => produto.quantidade = e.target.value }/>
                 </div>
-                <div id="divGraficosProduto" className={ isEditing ? "mt1" : "mt1 hidden"}>
+                <div id="divGraficosProduto" className={ isEditing ? "mt2" : "mt2 hidden"}>
                     <Chart
                         width={'22rem'}
-                        height={'20rem'}
+                        height={'15rem'}
                         chartType="Bar"
                         data={produto.historicoPrecos}
-                        options={{ title: 'Histórico de Preços'}}
+                        options={ { chart: { title: 'Histórico de Preços' } } }
                     />
                     <Chart
-                        className="mt2"
+                        className="mt3"
                         width={'22rem'}
-                        height={'20rem'}
+                        height={'15rem'}
                         chartType="Bar"
                         data={produto.historicoCompras}
-                        options={{ title: 'Histórico de Compras'}}
+                        options={ { chart: { title: 'Histórico de Compras' } } }
                     />
                 </div>
             </div>
